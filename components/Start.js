@@ -62,7 +62,11 @@ export default class Start extends React.Component {
             <Button
               color='#757083'
               title='Start Chatting'
-              onPress={() => this.props.navigation.navigate('Chat')}
+              onPress={() =>
+                this.props.navigation.navigate('Chat', {
+                  name: this.state.name,
+                })
+              }
             />
           </View>
         </ImageBackground>
