@@ -1,15 +1,7 @@
 import React from 'react';
-import {
-  View,
-  Text,
-  Button,
-  TextInput,
-  StyleSheet,
-  ImageBackground,
-  Icon,
-} from 'react-native';
+import { View, Text, StyleSheet, ImageBackground, Button } from 'react-native';
 
-import { UserOutlined } from 'react-native-vector-icons';
+import { Icon, Input } from 'react-native-elements';
 
 export default class Start extends React.Component {
   constructor(props) {
@@ -27,13 +19,34 @@ export default class Start extends React.Component {
           blurRadius={3}>
           <Text style={styles.mainTitle}>Hello, World!</Text>
           <View style={styles.startContainer}>
-            <View>
-              <TextInput
+            <View style={styles.textContainer}>
+              {/* <View
+                style={{
+                  justifyContent: 'center',
+                  marginTop: 20,
+                }}>
+                <Icon
+                  name='user'
+                  type='antdesign'
+                  color='#757083'
+                  size={25}
+                  style={{ opacity: 0.3 }}
+                />
+              </View> */}
+              <Input
+                leftIcon={{
+                  type: 'antdesign',
+                  name: 'user',
+                  opacity: 0.2,
+                  marginTop: 20,
+                }}
+                containerStyle='none'
                 style={styles.input}
                 placeholder='Your Name'
                 type='text'
                 value={this.state.name}
-                onChangeText={(name) => this.setState({ name })}></TextInput>
+                onChangeText={(name) => this.setState({ name })}
+              />
             </View>
 
             <View style={styles.colorContainer}>
@@ -92,13 +105,18 @@ const styles = StyleSheet.create({
     marginTop: 120,
   },
 
+  textContainer: {
+    width: '88%',
+    marginLeft: 'auto',
+    marginRight: 'auto',
+  },
+
   input: {
     color: '#757083',
     opacity: 50,
     backgroundColor: '#FFF',
-    borderColor: '#474056',
-    borderWidth: 1,
-    width: '88%',
+    // borderColor: '#474056',
+    // borderWidth: 1,
     height: 60,
     marginLeft: 'auto',
     marginRight: 'auto',
@@ -110,7 +128,7 @@ const styles = StyleSheet.create({
 
   colorContainer: {
     marginLeft: 25,
-    marginTop: 35,
+    marginTop: 20,
   },
 
   chooseColor: {
@@ -124,7 +142,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'flex-start',
     marginTop: 15,
-    marginBottom: 80,
+    marginBottom: 70,
   },
 
   circleAlmostBlack: {
@@ -161,9 +179,13 @@ const styles = StyleSheet.create({
 
   startBtn: {
     fontSize: 16,
+    height: 50,
     fontWeight: '600',
-    color: 'black',
-    backgroundColor: 'black',
+    color: '#FFF',
+    backgroundColor: '#757083',
     width: '88%',
+    marginLeft: 'auto',
+    marginRight: 'auto',
+    marginBottom: 100,
   },
 });
