@@ -6,8 +6,10 @@ import {
   TextInput,
   StyleSheet,
   ImageBackground,
-  Image,
+  Icon,
 } from 'react-native';
+
+import { UserOutlined } from 'react-native-vector-icons';
 
 export default class Start extends React.Component {
   constructor(props) {
@@ -26,37 +28,21 @@ export default class Start extends React.Component {
           <Text style={styles.mainTitle}>Hello, World!</Text>
           <View style={styles.startContainer}>
             <View>
-              <Image source={require('../img/icon.svg')} />
               <TextInput
-                style={(styles.baseFontDeco, styles.input)}
+                style={styles.input}
                 placeholder='Your Name'
                 type='text'
                 value={this.state.name}
                 onChangeText={(name) => this.setState({ name })}></TextInput>
             </View>
 
-            <View>
-              <View style={styles.colorContainer}>
-                <Text style={(styles.baseFontDeco, { color: '#757083' })}>
-                  Choose a Background Color
-                </Text>
-
-                <View
-                  style={
-                    (styles.circle, { backgroundColor: '#090C08' })
-                  }></View>
-                <View
-                  style={
-                    (styles.circle, { backgroundColor: '#474056' })
-                  }></View>
-                <View
-                  style={
-                    (styles.circle, { backgroundColor: '#8A95A5' })
-                  }></View>
-                <View
-                  style={
-                    (styles.circle, { backgroundColor: '#B0C6AE' })
-                  }></View>
+            <View style={styles.colorContainer}>
+              <Text style={styles.chooseColor}>Choose a Background Color</Text>
+              <View style={styles.colorChoice}>
+                <View style={styles.circleAlmostBlack}></View>
+                <View style={styles.circleGrayPurple}></View>
+                <View style={styles.circleGray}></View>
+                <View style={styles.circleOliveGreen}></View>
               </View>
             </View>
             <Button
@@ -76,11 +62,6 @@ export default class Start extends React.Component {
 }
 
 const styles = StyleSheet.create({
-  baseFontDeco: {
-    fontSize: 16,
-    fontWeight: '300',
-  },
-
   container: {
     flex: 1,
     flexDirection: 'column',
@@ -121,18 +102,61 @@ const styles = StyleSheet.create({
     height: 60,
     marginLeft: 'auto',
     marginRight: 'auto',
-    marginTop: 20,
+    marginTop: 25,
     borderRadius: 3,
+    fontSize: 16,
+    fontWeight: '300',
   },
 
   colorContainer: {
-    flexDirection: 'column',
+    marginLeft: 25,
+    marginTop: 35,
   },
 
-  circle: {
+  chooseColor: {
+    fontSize: 16,
+    fontWeight: '300',
+    color: '#757083',
+    opacity: 100,
+  },
+
+  colorChoice: {
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    marginTop: 15,
+    marginBottom: 80,
+  },
+
+  circleAlmostBlack: {
     width: 50,
     height: 50,
     borderRadius: 25,
+    backgroundColor: '#090c08',
+    marginRight: 20,
+  },
+
+  circleGrayPurple: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: '#474056',
+    marginRight: 20,
+  },
+
+  circleGray: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: '#8A95A5',
+    marginRight: 20,
+  },
+
+  circleOliveGreen: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: '#B9C6AE',
+    marginRight: 20,
   },
 
   startBtn: {
