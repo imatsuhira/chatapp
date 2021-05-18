@@ -1,7 +1,15 @@
 import React from 'react';
-import { View, Text, StyleSheet, ImageBackground, Button } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ImageBackground,
+  Button,
+  KeyboardAvoidingView,
+  Platform,
+} from 'react-native';
 
-import { Icon, Input } from 'react-native-elements';
+import { Input } from 'react-native-elements';
 
 export default class Start extends React.Component {
   constructor(props) {
@@ -12,7 +20,9 @@ export default class Start extends React.Component {
   }
   render() {
     return (
-      <View style={styles.container}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={styles.container}>
         <ImageBackground
           source={require('../img/Background_Image.png')}
           style={styles.image}
@@ -20,19 +30,6 @@ export default class Start extends React.Component {
           <Text style={styles.mainTitle}>Hello, World!</Text>
           <View style={styles.startContainer}>
             <View style={styles.textContainer}>
-              {/* <View
-                style={{
-                  justifyContent: 'center',
-                  marginTop: 20,
-                }}>
-                <Icon
-                  name='user'
-                  type='antdesign'
-                  color='#757083'
-                  size={25}
-                  style={{ opacity: 0.3 }}
-                />
-              </View> */}
               <Input
                 leftIcon={{
                   type: 'antdesign',
@@ -69,10 +66,12 @@ export default class Start extends React.Component {
             />
           </View>
         </ImageBackground>
-      </View>
+      </KeyboardAvoidingView>
     );
   }
 }
+
+/* Design */
 
 const styles = StyleSheet.create({
   container: {
