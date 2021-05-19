@@ -7,6 +7,7 @@ import {
   Button,
   KeyboardAvoidingView,
   Platform,
+  TouchableOpacity,
 } from 'react-native';
 
 import { Input } from 'react-native-elements';
@@ -16,8 +17,10 @@ export default class Start extends React.Component {
     super(props);
     this.state = {
       name: '',
+      chosenColor: '',
     };
   }
+
   render() {
     return (
       <KeyboardAvoidingView
@@ -49,10 +52,25 @@ export default class Start extends React.Component {
             <View style={styles.colorContainer}>
               <Text style={styles.chooseColor}>Choose a Background Color</Text>
               <View style={styles.colorChoice}>
-                <View style={styles.circleAlmostBlack}></View>
-                <View style={styles.circleGrayPurple}></View>
-                <View style={styles.circleGray}></View>
-                <View style={styles.circleOliveGreen}></View>
+                <TouchableOpacity
+                  onPress={() => this.setState({ chosenColor: '#090c08' })}>
+                  <View style={styles.circleAlmostBlack}></View>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  onPress={() => this.setState({ chosenColor: '#474056' })}>
+                  <View style={styles.circleGrayPurple}></View>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  onPress={() => this.setState({ chosenColor: '#8A95A5' })}>
+                  <View style={styles.circleGray}></View>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  onPress={() => this.setState({ chosenColor: '#B9C6AE' })}>
+                  <View style={styles.circleOliveGreen}></View>
+                </TouchableOpacity>
               </View>
             </View>
             <Button
@@ -61,6 +79,7 @@ export default class Start extends React.Component {
               onPress={() =>
                 this.props.navigation.navigate('Chat', {
                   name: this.state.name,
+                  chosenColor: this.state.chosenColor,
                 })
               }
             />
