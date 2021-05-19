@@ -27,7 +27,7 @@ export default class Start extends React.Component {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.container}>
         <ImageBackground
-          source={require('../img/Background_Image.png')}
+          source={require('../assets/Background_Image.png')}
           style={styles.image}
           blurRadius={3}>
           <Text style={styles.mainTitle}>Hello, World!</Text>
