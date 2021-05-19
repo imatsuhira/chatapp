@@ -73,16 +73,18 @@ export default class Start extends React.Component {
                 </TouchableOpacity>
               </View>
             </View>
-            <Button
-              color='#757083'
-              title='Start Chatting'
-              onPress={() =>
-                this.props.navigation.navigate('Chat', {
-                  name: this.state.name,
-                  chosenColor: this.state.chosenColor,
-                })
-              }
-            />
+            <View style={styles.startBtn}>
+              <Button
+                color='#757083'
+                title='Start Chatting'
+                onPress={() =>
+                  this.props.navigation.navigate('Chat', {
+                    name: this.state.name,
+                    chosenColor: this.state.chosenColor,
+                  })
+                }
+              />
+            </View>
           </View>
         </ImageBackground>
       </KeyboardAvoidingView>
@@ -105,7 +107,7 @@ const styles = StyleSheet.create({
     color: '#FFF',
     textAlign: 'center',
     marginTop: 80,
-    marginBottom: 140,
+    marginBottom: 180,
   },
 
   image: {
@@ -120,7 +122,7 @@ const styles = StyleSheet.create({
     width: '88%',
     marginLeft: 'auto',
     marginRight: 'auto',
-    marginTop: 120,
+    marginTop: 30,
   },
 
   textContainer: {
@@ -200,10 +202,8 @@ const styles = StyleSheet.create({
     height: 50,
     fontWeight: '600',
     color: '#FFF',
-    backgroundColor: '#757083',
     width: '88%',
     marginLeft: 'auto',
     marginRight: 'auto',
-    marginBottom: 100,
   },
 });
