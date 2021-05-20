@@ -53,21 +53,33 @@ export default class Start extends React.Component {
               <Text style={styles.chooseColor}>Choose a Background Color</Text>
               <View style={styles.colorChoice}>
                 <TouchableOpacity
+                  accessible={true}
+                  accessibilityLabel='Chat background color'
+                  accessibilityHint='You can choose chat background color to black'
                   onPress={() => this.setState({ chosenColor: '#090c08' })}>
                   <View style={styles.circleAlmostBlack}></View>
                 </TouchableOpacity>
 
                 <TouchableOpacity
+                  accessible={true}
+                  accessibilityLabel='Chat background color'
+                  accessibilityHint='You can choose chat background color to dark purple'
                   onPress={() => this.setState({ chosenColor: '#474056' })}>
                   <View style={styles.circleGrayPurple}></View>
                 </TouchableOpacity>
 
                 <TouchableOpacity
+                  accessible={true}
+                  accessibilityLabel='Chat background color'
+                  accessibilityHint='You can choose chat background color to gray purple'
                   onPress={() => this.setState({ chosenColor: '#8A95A5' })}>
                   <View style={styles.circleGray}></View>
                 </TouchableOpacity>
 
                 <TouchableOpacity
+                  accessible={true}
+                  accessibilityLabel='Chat background color'
+                  accessibilityHint='You can choose chat background color to olive green'
                   onPress={() => this.setState({ chosenColor: '#B9C6AE' })}>
                   <View style={styles.circleOliveGreen}></View>
                 </TouchableOpacity>
