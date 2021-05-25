@@ -98,6 +98,7 @@ export default class Start extends React.Component {
               />
             </View>
           </View>
+          <View style={{ flex: 0.5 }}></View>
         </ImageBackground>
       </KeyboardAvoidingView>
     );
@@ -114,12 +115,13 @@ const styles = StyleSheet.create({
   },
 
   mainTitle: {
+    flex: 2,
     fontSize: 45,
     fontWeight: '600',
     color: '#FFF',
     textAlign: 'center',
-    marginTop: 80,
-    marginBottom: 180,
+    marginTop: 60,
+    // marginBottom: 100,
   },
 
   image: {
@@ -129,6 +131,7 @@ const styles = StyleSheet.create({
   },
 
   startContainer: {
+    flex: 5,
     backgroundColor: '#FFF',
     height: '44%',
     width: '88%',
@@ -147,8 +150,6 @@ const styles = StyleSheet.create({
     color: '#757083',
     opacity: 50,
     backgroundColor: '#FFF',
-    // borderColor: '#474056',
-    // borderWidth: 1,
     height: 60,
     marginLeft: 'auto',
     marginRight: 'auto',
@@ -156,11 +157,13 @@ const styles = StyleSheet.create({
     borderRadius: 3,
     fontSize: 16,
     fontWeight: '300',
+    flex: 3,
   },
 
   colorContainer: {
     marginLeft: 25,
     marginTop: 20,
+    flex: 1,
   },
 
   chooseColor: {
@@ -174,7 +177,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'flex-start',
     marginTop: 15,
-    marginBottom: 70,
+    //marginBottom: 70,
   },
 
   circleAlmostBlack: {
@@ -217,5 +220,6 @@ const styles = StyleSheet.create({
     width: '88%',
     marginLeft: 'auto',
     marginRight: 'auto',
+    flex: 0.5,
   },
 });

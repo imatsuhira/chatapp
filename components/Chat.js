@@ -1,6 +1,8 @@
 import React from 'react';
-import { View, Platform, KeyboardAvoidingView } from 'react-native';
+import { View, Platform, KeyboardAvoidingView, Text } from 'react-native';
 import { GiftedChat, Bubble } from 'react-native-gifted-chat';
+const firebase = require('firebase');
+require('firebase/firestore');
 
 export default class Chat extends React.Component {
   constructor(props) {
@@ -8,7 +10,20 @@ export default class Chat extends React.Component {
     this.state = {
       // add messages state
       messages: [],
+      uid: 0,
+      isAuthorized: false,
     };
+
+    if (!firebase.apps.length)
+      firebase.initializeApp({
+        apiKey: 'AIzaSyBdW7AeKrTZrqINmJPoZlNX1-5QLDw8Fe8',
+        authDomain: 'chatapp-6dacb.firebaseapp.com',
+        projectId: 'chatapp-6dacb',
+        storageBucket: 'chatapp-6dacb.appspot.com',
+        messagingSenderId: '839455823126',
+        appId: '1:839455823126:web:3ad2a5ae9f92c939a2ac37',
+        measurementId: 'G-FLQE0S6MJN',
+      });
   }
 
   componentDidMount() {
@@ -44,12 +59,77 @@ export default class Chat extends React.Component {
         },
       ],
     });
+
+    // reference firebase to get messages
+    // create a reference to the active user's messages
+    this.referenceChatMessages = firebase
+      .firestore()
+      .collection('messages')
+      .where('uid', '==', this.state.uid);
+    this.unsubscribe = this.referenceChatMessages
+      .orderBy('createdAt', 'desc')
+      .onSnapshot(this.onCollectionUpdate);
+    // let user anonymously log in
+    this.authUnsubscribe = firebase.auth().onAuthStateChanged((user) => {
+      if (!user) {
+        firebase.auth().signInAnonymously();
+      }
+      this.setState({
+        uid: user.uid,
+        messages: [],
+        isAuthorized: true,
+      });
+
+      // to make sure referenceChatMessages doesn't return null or undefined
+      if (
+        this.referenceChatMessages === null ||
+        this.referenceChatMessages === undefined
+      ) {
+        this.unsubscribe;
+      }
+    });
   }
+
+  componentWillUnmount() {
+    //stop listening for changes
+    this.unsubscribe();
+    // stop listening for authentication
+    this.authUnsubscribe();
+  }
+
+  onCollectionUpdate = (querySnapshot) => {
+    const messages = [];
+    // go through each document
+    querySnapshot.forEach((doc) => {
+      //get the QueryDocumentSnapshot's data
+      let data = doc.data();
+      messages.push({
+        _id: data._id,
+        text: data.text,
+        createdAt: data.createdAt.toDate(),
+        user: data.user,
+      });
+    });
+    this.setState({
+      messages,
+    });
+  };
 
   onSend(messages = []) {
     this.setState((previousState) => ({
       messages: GiftedChat.append(previousState.messages, messages),
     }));
+    this.addMessage();
+  }
+
+  //when onSend is called, this function is called after the message state is updated
+  addMessage() {
+    this.referenceMessages.add({
+      messages: this.state.messages,
+      name: this.route.params.name,
+      createdAt: new Date(),
+      uid: this.state.uid,
+    });
   }
 
   // Change the color of chat bubble
@@ -70,18 +150,24 @@ export default class Chat extends React.Component {
     let chosenColor = this.props.route.params.chosenColor;
     return (
       <View style={{ flex: 1, backgroundColor: chosenColor }}>
-        <GiftedChat
-          renderBubble={this.renderBubble.bind(this)}
-          messages={this.state.messages}
-          onSend={(messages) => this.onSend(messages)}
-          user={{
-            _id: 1,
-          }}
-        />
-        {/* lift up the message box on android when keyboard appears */}
-        {Platform.OS === 'android' ? (
-          <KeyboardAvoidingView behavior='height' />
-        ) : null}
+        {this.state.isAuthorized ? (
+          <View style={{ flex: 1, backgroundColor: chosenColor }}>
+            <GiftedChat
+              renderBubble={this.renderBubble.bind(this)}
+              messages={this.state.messages}
+              onSend={(messages) => this.onSend(messages)}
+              user={{
+                uid: this.state.uid,
+              }}
+            />
+            {/* lift up the message box on android when keyboard appears */}
+            {Platform.OS === 'android' ? (
+              <KeyboardAvoidingView behavior='height' />
+            ) : null}
+          </View>
+        ) : (
+          <Text>Authorizing... just a moment please</Text>
+        )}
       </View>
     );
   }
