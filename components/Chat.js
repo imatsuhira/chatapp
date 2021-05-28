@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Platform, KeyboardAvoidingView, Text } from 'react-native';
 import { GiftedChat, Bubble } from 'react-native-gifted-chat';
-const firebase = require('firebase');
+import firebase from 'firebase';
 require('firebase/firestore');
 
 export default class Chat extends React.Component {
@@ -10,7 +10,11 @@ export default class Chat extends React.Component {
     this.state = {
       // add messages state
       messages: [],
-      uid: 0,
+      user: {
+        uid: '',
+        name: '',
+        avatar: '',
+      },
       isAuthorized: false,
     };
 
@@ -39,7 +43,7 @@ export default class Chat extends React.Component {
           text: `Konnichiwa ${name}, this is the first chat message!`,
           createdAt: new Date(),
           user: {
-            _id: 2,
+            uid: 2,
             name: 'React Native',
             avatar: 'https://placeimg.com/140/140/any',
           },
@@ -70,31 +74,24 @@ export default class Chat extends React.Component {
       .orderBy('createdAt', 'desc')
       .onSnapshot(this.onCollectionUpdate);
     // let user anonymously log in
-    this.authUnsubscribe = firebase.auth().onAuthStateChanged((user) => {
+    this.authUnsubscribe = firebase.auth().onAuthStateChanged(async (user) => {
       if (!user) {
-        firebase.auth().signInAnonymously();
+        await firebase.auth().signInAnonymously();
       }
       this.setState({
         uid: user.uid,
-        messages: [],
+        name: this.props.route.params.name,
+        avatar: this.state.avatar,
         isAuthorized: true,
       });
-
-      // to make sure referenceChatMessages doesn't return null or undefined
-      if (
-        this.referenceChatMessages === null ||
-        this.referenceChatMessages === undefined
-      ) {
-        this.unsubscribe;
-      }
     });
   }
 
   componentWillUnmount() {
     //stop listening for changes
-    this.unsubscribe();
+    this.unsubscribe;
     // stop listening for authentication
-    this.authUnsubscribe();
+    this.authUnsubscribe;
   }
 
   onCollectionUpdate = (querySnapshot) => {
@@ -116,17 +113,19 @@ export default class Chat extends React.Component {
   };
 
   onSend(messages = []) {
-    this.setState((previousState) => ({
-      messages: GiftedChat.append(previousState.messages, messages),
-    }));
-    this.addMessage();
+    this.setState(
+      (previousState) => ({
+        messages: GiftedChat.append(previousState.messages, messages),
+      }),
+      () => this.addMessage()
+    );
   }
 
   //when onSend is called, this function is called after the message state is updated
   addMessage() {
-    this.referenceMessages.add({
+    this.referenceChatMessages.add({
       messages: this.state.messages,
-      name: this.route.params.name,
+      name: this.props.route.params.name,
       createdAt: new Date(),
       uid: this.state.uid,
     });
