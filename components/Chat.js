@@ -10,11 +10,7 @@ export default class Chat extends React.Component {
     this.state = {
       // add messages state
       messages: [],
-      user: {
-        uid: '',
-        name: '',
-        avatar: '',
-      },
+      uid: 0,
       isAuthorized: false,
     };
 
@@ -28,6 +24,9 @@ export default class Chat extends React.Component {
         appId: '1:839455823126:web:3ad2a5ae9f92c939a2ac37',
         measurementId: 'G-FLQE0S6MJN',
       });
+
+    // reference firebase to get messages
+    this.referenceChatMessages = firebase.firestore().collection('messages');
   }
 
   componentDidMount() {
@@ -35,44 +34,35 @@ export default class Chat extends React.Component {
     // I put it here to avoid warning
     let name = this.props.route.params.name;
     this.props.navigation.setOptions({ title: name });
-    // after render(), set tate
-    this.setState({
-      messages: [
-        {
-          _id: 1,
-          text: `Konnichiwa ${name}, this is the first chat message!`,
-          createdAt: new Date(),
-          user: {
-            uid: 2,
-            name: 'React Native',
-            avatar: 'https://placeimg.com/140/140/any',
-          },
-          // Mark the message as sent, using one tick
-          sent: true,
-          // Mark the message as sent, using two tick
-          received: true,
-          // Mark the message as pending with a clock loader
-          pending: true,
-          // Any additional custom parameters are passed through
-        },
-        {
-          _id: 2,
-          text: 'You have entered a chat',
-          createdAt: new Date(),
-          system: true,
-        },
-      ],
-    });
+    // after render(), set state
+    // this.setState({
+    //   messages: [
+    //     {
+    //       _id: 1,
+    //       text: `Konnichiwa ${name}, this is the first chat message!`,
+    //       createdAt: new Date(),
+    //       user: {
+    //         uid: 2,
+    //         name: 'React Native',
+    //         avatar: 'https://placeimg.com/140/140/any',
+    //       },
+    //       // Mark the message as sent, using one tick
+    //       sent: true,
+    //       // Mark the message as sent, using two tick
+    //       received: true,
+    //       // Mark the message as pending with a clock loader
+    //       pending: true,
+    //       // Any additional custom parameters are passed through
+    //     },
+    //     {
+    //       _id: 2,
+    //       text: 'You have entered a chat',
+    //       createdAt: new Date(),
+    //       system: true,
+    //     },
+    //   ],
+    // });
 
-    // reference firebase to get messages
-    // create a reference to the active user's messages
-    this.referenceChatMessages = firebase
-      .firestore()
-      .collection('messages')
-      .where('uid', '==', this.state.uid);
-    this.unsubscribe = this.referenceChatMessages
-      .orderBy('createdAt', 'desc')
-      .onSnapshot(this.onCollectionUpdate);
     // let user anonymously log in
     this.authUnsubscribe = firebase.auth().onAuthStateChanged(async (user) => {
       if (!user) {
@@ -81,17 +71,26 @@ export default class Chat extends React.Component {
       this.setState({
         uid: user.uid,
         name: this.props.route.params.name,
-        avatar: this.state.avatar,
         isAuthorized: true,
       });
     });
+
+    // create a reference to the active user's messages
+    this.referenceMessagesUser = firebase
+      .firestore()
+      .collection('messages')
+      .where('uid', '==', this.state.uid);
+
+    this.unsubscribeMessagesUser = this.referenceMessagesUser.onSnapshot(
+      this.onCollectionUpdate
+    );
   }
 
   componentWillUnmount() {
     //stop listening for changes
-    this.unsubscribe;
+    this.unsubscribeMessagesUser();
     // stop listening for authentication
-    this.authUnsubscribe;
+    this.authUnsubscribe();
   }
 
   onCollectionUpdate = (querySnapshot) => {
