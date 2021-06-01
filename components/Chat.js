@@ -10,8 +10,13 @@ export default class Chat extends React.Component {
     this.state = {
       // add messages state
       messages: [],
-      uid: 0,
       isAuthorized: false,
+      uid: '',
+      user: {
+        _id: '',
+        avatar: null,
+        name: this.props.route.params.name,
+      },
     };
 
     if (!firebase.apps.length)
@@ -24,9 +29,6 @@ export default class Chat extends React.Component {
         appId: '1:839455823126:web:3ad2a5ae9f92c939a2ac37',
         measurementId: 'G-FLQE0S6MJN',
       });
-
-    // reference firebase to get messages
-    this.referenceChatMessages = firebase.firestore().collection('messages');
   }
 
   componentDidMount() {
@@ -34,7 +36,9 @@ export default class Chat extends React.Component {
     // I put it here to avoid warning
     let name = this.props.route.params.name;
     this.props.navigation.setOptions({ title: name });
-    // after render(), set state
+    // reference firebase to get messages
+    this.referenceChatMessages = firebase.firestore().collection('messages');
+    // //after render(), set state
     // this.setState({
     //   messages: [
     //     {
@@ -70,25 +74,19 @@ export default class Chat extends React.Component {
       }
       this.setState({
         uid: user.uid,
-        name: this.props.route.params.name,
+        messages: [],
         isAuthorized: true,
       });
     });
 
-    // create a reference to the active user's messages
-    this.referenceMessagesUser = firebase
-      .firestore()
-      .collection('messages')
-      .where('uid', '==', this.state.uid);
-
-    this.unsubscribeMessagesUser = this.referenceMessagesUser.onSnapshot(
-      this.onCollectionUpdate
-    );
+    this.unsubscribeChatUser = this.referenceChatMessages
+      .orderBy('createdAt', 'desc')
+      .onSnapshot(this.onCollectionUpdate);
   }
 
   componentWillUnmount() {
     //stop listening for changes
-    this.unsubscribeMessagesUser();
+    this.unsubscribeChatUser;
     // stop listening for authentication
     this.authUnsubscribe();
   }
@@ -122,11 +120,15 @@ export default class Chat extends React.Component {
 
   //when onSend is called, this function is called after the message state is updated
   addMessage() {
+    const message = this.state.messages[0];
     this.referenceChatMessages.add({
-      messages: this.state.messages,
-      name: this.props.route.params.name,
-      createdAt: new Date(),
+      _id: message._id,
       uid: this.state.uid,
+      createdAt: message.createdAt,
+      text: message.text || null,
+      user: message.user,
+      image: message.image || null,
+      location: message.location || null,
     });
   }
 
@@ -154,9 +156,7 @@ export default class Chat extends React.Component {
               renderBubble={this.renderBubble.bind(this)}
               messages={this.state.messages}
               onSend={(messages) => this.onSend(messages)}
-              user={{
-                uid: this.state.uid,
-              }}
+              user={this.state.user}
             />
             {/* lift up the message box on android when keyboard appears */}
             {Platform.OS === 'android' ? (
