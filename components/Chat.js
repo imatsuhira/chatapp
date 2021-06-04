@@ -12,7 +12,6 @@ export default class Chat extends React.Component {
     this.state = {
       // add messages state
       messages: [],
-      isAuthorized: false,
       isConnected: false,
       uid: '',
       user: {
@@ -54,9 +53,31 @@ export default class Chat extends React.Component {
         this.setState({
           isConnected: true,
         });
-        console.log(this.state.isConnected);
+        // reference firebase to get messages
+        this.referenceChatMessages = firebase
+          .firestore()
+          .collection('messages');
+
+        // let user anonymously log in
+        this.authUnsubscribe = firebase
+          .auth()
+          .onAuthStateChanged(async (user) => {
+            if (!user) {
+              await firebase.auth().signInAnonymously();
+            }
+            this.setState({
+              uid: user.uid,
+              messages: [],
+            });
+          });
+        // Save chat history when it's unmounted
+        this.unsubscribeChatUser = this.referenceChatMessages
+          .orderBy('createdAt', 'desc')
+          .onSnapshot(this.onCollectionUpdate);
       } else {
         console.log('offline');
+        //if offline, get messages from localStorage
+        this.getMessages();
       }
     });
 
@@ -64,47 +85,21 @@ export default class Chat extends React.Component {
     // I put it here to avoid warning
     let name = this.props.route.params.name;
     this.props.navigation.setOptions({ title: name });
-    if (this.state.isConnected) {
-      // reference firebase to get messages
-      this.referenceChatMessages = firebase.firestore().collection('messages');
-
-      // let user anonymously log in
-      this.authUnsubscribe = firebase
-        .auth()
-        .onAuthStateChanged(async (user) => {
-          if (!user) {
-            await firebase.auth().signInAnonymously();
-          }
-          this.setState({
-            uid: user.uid,
-            messages: [],
-            isAuthorized: true,
-          });
-        });
-      // Save chat history when it's unmounted
-      this.unsubscribeChatUser = this.referenceChatMessages
-        .orderBy('createdAt', 'desc')
-        .onSnapshot(this.onCollectionUpdate);
-    } else {
-      // if user is offline, get messages from localStorage
-      this.getMessages();
-    }
   }
 
-  // //hide input bar when offline
-  // renderInputToolbar(props) {
-  //   if (this.state.isConnected == false) {
-  //   } else {
-  //     return <InputToolbar {...props} />;
-  //   }
-  // }
+  //hide input bar when offline
+  renderInputToolbar(props) {
+    if (this.state.isConnected) {
+      return <InputToolbar {...props} />;
+    }
+  }
 
   componentWillUnmount() {
     if (this.state.isOnline) {
       //stop listening for changes
-      this.unsubscribeChatUser();
+      this.unsubscribeChatUser;
       // stop listening for authentication
-      this.authUnsubscribe();
+      this.authUnsubscribe;
     }
   }
 
@@ -189,23 +184,18 @@ export default class Chat extends React.Component {
     let chosenColor = this.props.route.params.chosenColor;
     return (
       <View style={{ flex: 1, backgroundColor: chosenColor }}>
-        {this.state.isAuthorized ? (
-          <View style={{ flex: 1, backgroundColor: chosenColor }}>
-            <GiftedChat
-              renderBubble={this.renderBubble.bind(this)}
-              renderInputToolbar={this.renderInputToolbar}
-              messages={this.state.messages}
-              onSend={(messages) => this.onSend(messages)}
-              user={this.state.user}
-            />
-            {/* lift up the message box on android when keyboard appears */}
-            {Platform.OS === 'android' ? (
-              <KeyboardAvoidingView behavior='height' />
-            ) : null}
-          </View>
-        ) : (
-          <Text>Authorizing... just a moment please</Text>
-        )}
+        <GiftedChat
+          renderBubble={this.renderBubble.bind(this)}
+          renderInputToolbar={this.renderInputToolbar.bind(this)}
+          renderUsernameOnMessage={true}
+          messages={this.state.messages}
+          onSend={(messages) => this.onSend(messages)}
+          user={this.state.user}
+        />
+        {/* lift up the message box on android when keyboard appears */}
+        {Platform.OS === 'android' ? (
+          <KeyboardAvoidingView behavior='height' />
+        ) : null}
       </View>
     );
   }
