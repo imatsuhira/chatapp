@@ -1,11 +1,20 @@
 import React from 'react';
-import { View, Platform, KeyboardAvoidingView, Text } from 'react-native';
+import {
+  View,
+  Platform,
+  KeyboardAvoidingView,
+  Text,
+  TouchableOpacity,
+  Button,
+} from 'react-native';
 import { GiftedChat, Bubble, InputToolbar } from 'react-native-gifted-chat';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import NetInfo from '@react-native-community/netinfo';
 import * as Permissions from 'expo-permissions';
 import * as ImagePicker from 'expo-image-picker';
+import CustomActions from './CustomActions';
 import firebase from 'firebase';
+import MapView from 'react-native-maps';
 require('firebase/firestore');
 
 export default class Chat extends React.Component {
@@ -45,6 +54,7 @@ export default class Chat extends React.Component {
       });
     } catch (error) {
       console.log(error.message);
+      a;
     }
   };
 
@@ -183,6 +193,29 @@ export default class Chat extends React.Component {
     );
   }
 
+  //Add media button
+  renderCustomActions = (props) => {
+    return <CustomActions {...props} />;
+  };
+
+  renderCustomView = (props) => {
+    const { currentMessage } = props;
+    if (currentMessage.location) {
+      return (
+        <MapView
+          style={{ width: 150, height: 100, borderRadius: 13, margin: 3 }}
+          region={{
+            latitude: currentMessage.location.latitude,
+            longitude: currentMessage.location.longitude,
+            latitudeDelta: 0.0922,
+            longitudeDelta: 0.0421,
+          }}
+        />
+      );
+    }
+    return null;
+  };
+
   render() {
     let chosenColor = this.props.route.params.chosenColor;
     return (
@@ -192,14 +225,11 @@ export default class Chat extends React.Component {
           backgroundColor: chosenColor,
           justifyContent: 'center',
         }}>
-        <Button
-          title='Pick an image from the library'
-          onPress={this.pickImage}
-        />
-        <Button title='Take a photo' onPress={this.takePhoto} />
         <GiftedChat
           renderBubble={this.renderBubble.bind(this)}
           renderInputToolbar={this.renderInputToolbar.bind(this)}
+          renderActions={this.renderCustomActions.bind(this)}
+          renderCustomView={this.renderCustomView.bind(this)}
           renderUsernameOnMessage={true}
           messages={this.state.messages}
           onSend={(messages) => this.onSend(messages)}
