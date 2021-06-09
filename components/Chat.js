@@ -10,8 +10,6 @@ import {
 import { GiftedChat, Bubble, InputToolbar } from 'react-native-gifted-chat';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import NetInfo from '@react-native-community/netinfo';
-import * as Permissions from 'expo-permissions';
-import * as ImagePicker from 'expo-image-picker';
 import CustomActions from './CustomActions';
 import firebase from 'firebase';
 import MapView from 'react-native-maps';
@@ -23,8 +21,8 @@ export default class Chat extends React.Component {
     this.state = {
       // add messages state
       messages: [],
-      image: null,
       isConnected: false,
+      image: null,
       uid: '',
       user: {
         _id: '',
@@ -127,6 +125,8 @@ export default class Chat extends React.Component {
         text: data.text,
         createdAt: data.createdAt.toDate(),
         user: data.user,
+        image: data.image,
+        location: data.location
       });
     });
     this.setState({
@@ -139,7 +139,10 @@ export default class Chat extends React.Component {
       (previousState) => ({
         messages: GiftedChat.append(previousState.messages, messages),
       }),
-      () => this.saveMessages()
+      () => {
+        this.saveMessages();
+        this.addMessage();
+      }
     );
   }
 
@@ -193,9 +196,15 @@ export default class Chat extends React.Component {
     );
   }
 
+  setImage = () => {
+    this.setState({
+      image: this.props.result
+    })
+  }
+
   //Add media button
   renderCustomActions = (props) => {
-    return <CustomActions {...props} />;
+    return <CustomActions {...props} onCollectionUpdate={this.onCollectionUpdate} />;
   };
 
   renderCustomView = (props) => {

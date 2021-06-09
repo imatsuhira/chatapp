@@ -7,6 +7,8 @@ import ActionSheet from 'react-native-actionsheet';
 import MapView from 'react-native-maps';
 import { Audio } from 'expo-av';
 import { Camera } from 'expo-camera';
+import firebase from 'firebase';
+require('firebase/firestore');
 
 export default class CustomActions extends React.Component {
   constructor(props) {
@@ -25,9 +27,8 @@ export default class CustomActions extends React.Component {
       }).catch((err) => console.log(err));
 
       if (!result.cancelled) {
-        this.setState({
-          image: result,
-        });
+        const imageUrl = await this.uploadImageFetch(result.uri);
+        this.props.onSend({ image: imageUrl })
       }
     }
   };
@@ -41,9 +42,8 @@ export default class CustomActions extends React.Component {
         }).catch((err) => console.log(err));
 
         if (!result.cancelled) {
-          this.setState({
-            image: result,
-          });
+          const imageUrl = await this.uploadImageFetch(result.uri);
+          this.props.onSend({ image: imageUrl })
         }
       }
     } catch (err) {
@@ -58,15 +58,15 @@ export default class CustomActions extends React.Component {
         console.log(err)
       );
       const longitude = JSON.stringify(result.coords.longitude);
-      const altitude = JSON.stringify(result.coords.latitude);
+      const latitude = JSON.stringify(result.coords.latitude);
 
       if (result) {
-        props.onSend({
+        this.props.onSend({
           location: {
             longitude: result.coords.longitude,
-            latitude: result.coords.latitude,
-          },
-        });
+            latitude: result.coords.latitude
+          }
+        })
       }
     }
   };
@@ -104,6 +104,33 @@ export default class CustomActions extends React.Component {
     );
   };
 
+  uploadImageFetch = async (uri) => {
+    const blob = await new Promise((res, rej) => {
+      const xhr = new XMLHttpRequest();
+      xhr.onload = function () {
+        res(xhr.response);
+      };
+      xhr.onerror = function (e) {
+        console.log(e);
+        rej(new TypeError("Network request failed"));
+      };
+      xhr.responseType = "blob";
+      xhr.open("GET", uri, true);
+      xhr.send(null);
+    });
+
+    const imageNameBefore = uri.split("/");
+    const imageName = imageNameBefore[imageNameBefore.length - 1];
+
+    const ref = firebase.storage().ref().child(`images/${imageName}`);
+
+    const snapshot = await ref.put(blob);
+
+    blob.close()
+
+    return await snapshot.ref.getDownloadURL();
+  }
+
   render() {
     return (
       <TouchableOpacity
@@ -114,68 +141,10 @@ export default class CustomActions extends React.Component {
         onPress={this.onActionPress}>
         <View style={[styles.wrapper, this.props.wrapperStyle]}>
           <Text style={[styles.iconText, this.props.iconTextStyle]}>+</Text>
-          {/* <ActionSheet
-            title={'Choose which media to send'}
-            options={[
-              'Choose from Library',
-              'Take Picture',
-              'Send Location',
-              'Cancel',
-            ]}
-            cancelButtonIndex={options.length - 1}
-            onPress={async (buttonIndex) => {
-              switch (buttonIndex) {
-                case 0:
-                  console.log('user wants to pick an image');
-                  return pickImage();
-                case 1:
-                  console.log('user wants to take a photo');
-                  return takePhoto();
-                case 2:
-                  console.log('user wants to get their location');
-                  return getLocation();
-              }
-            }}
-          /> */}
         </View>
       </TouchableOpacity>
     );
   }
-  // return (
-  //   <TouchableOpacity
-  //     accessible={true}
-  //     accessibilityLabel='More options'
-  //     accessibilityHint='You can choose to send a image or your geolocation'
-  //     style={[styles.container]}
-  //     onPress={showActionSheet}>
-  //     <View style={[styles.wrapper, props.wrapperStyle]}>
-  //       <Text style={[styles.iconText, props.iconTextStyle]}>+</Text>
-  //       <ActionSheet
-  //         title={'Choose which media to send'}
-  //         options={[
-  //           'Choose from Library',
-  //           'Take Picture',
-  //           'Send Location',
-  //           'Cancel',
-  //         ]}
-  //         cancelButtonIndex={options.length - 1}
-  //         onPress={async (buttonIndex) => {
-  //           switch (buttonIndex) {
-  //             case 0:
-  //               console.log('user wants to pick an image');
-  //               return pickImage();
-  //             case 1:
-  //               console.log('user wants to take a photo');
-  //               return takePhoto();
-  //             case 2:
-  //               console.log('user wants to get their location');
-  //               return getLocation();
-  //           }
-  //         }}
-  //       />
-  //     </View>
-  //   </TouchableOpacity>
-  // );
 }
 
 const styles = StyleSheet.create({
