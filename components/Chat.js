@@ -15,6 +15,9 @@ import firebase from 'firebase';
 import MapView from 'react-native-maps';
 require('firebase/firestore');
 
+import { LogBox } from 'react-native';
+LogBox.ignoreLogs(['Setting a timer','Animated.event']); 
+
 export default class Chat extends React.Component {
   constructor(props) {
     super(props);
@@ -23,11 +26,13 @@ export default class Chat extends React.Component {
       messages: [],
       isConnected: false,
       image: null,
-      uid: '',
+      //uid: '',
       user: {
         _id: '',
         name: this.props.route.params.name,
+        avatar: null
       },
+      location: null
     };
 
     if (!firebase.apps.length)
@@ -77,8 +82,10 @@ export default class Chat extends React.Component {
               await firebase.auth().signInAnonymously();
             }
             this.setState({
-              uid: user.uid,
               messages: [],
+              user: {
+                _id: user.uid
+              }
             });
           });
         // Save chat history when it's unmounted
@@ -173,7 +180,7 @@ export default class Chat extends React.Component {
     const message = this.state.messages[0];
     this.referenceChatMessages.add({
       _id: message._id,
-      uid: this.state.uid,
+      //uid: this.state.uid,
       createdAt: message.createdAt,
       text: message.text || null,
       user: message.user,
@@ -214,8 +221,8 @@ export default class Chat extends React.Component {
         <MapView
           style={{ width: 150, height: 100, borderRadius: 13, margin: 3 }}
           region={{
-            latitude: currentMessage.location.latitude,
-            longitude: currentMessage.location.longitude,
+            latitude: Number(currentMessage.location.latitude),
+            longitude: Number(currentMessage.location.longitude),
             latitudeDelta: 0.0922,
             longitudeDelta: 0.0421,
           }}
@@ -235,6 +242,7 @@ export default class Chat extends React.Component {
           justifyContent: 'center',
         }}>
         <GiftedChat
+          isAnimated
           renderBubble={this.renderBubble.bind(this)}
           renderInputToolbar={this.renderInputToolbar.bind(this)}
           renderActions={this.renderCustomActions.bind(this)}

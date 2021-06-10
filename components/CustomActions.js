@@ -3,12 +3,12 @@ import React from 'react';
 import { View, StyleSheet, Text, TouchableOpacity } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import * as Location from 'expo-location';
-import ActionSheet from 'react-native-actionsheet';
 import MapView from 'react-native-maps';
-import { Audio } from 'expo-av';
-import { Camera } from 'expo-camera';
 import firebase from 'firebase';
 require('firebase/firestore');
+
+import { LogBox } from 'react-native';
+LogBox.ignoreLogs(['Setting a timer', 'Animated.event']);
 
 export default class CustomActions extends React.Component {
   constructor(props) {
@@ -54,11 +54,9 @@ export default class CustomActions extends React.Component {
   getLocation = async () => {
     const { status } = await Location.requestForegroundPermissionsAsync();
     if (status === 'granted') {
-      let result = await Location.getCurrentPositionAsync({}).catch((err) =>
+      let result = await Location.getCurrentPositionAsync({accuracy:Location.Accuracy.High}).catch((err) =>
         console.log(err)
       );
-      const longitude = JSON.stringify(result.coords.longitude);
-      const latitude = JSON.stringify(result.coords.latitude);
 
       if (result) {
         this.props.onSend({

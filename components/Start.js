@@ -12,6 +12,9 @@ import {
 
 import { Input } from 'react-native-elements';
 
+import { LogBox } from 'react-native';
+LogBox.ignoreLogs(['Setting a timer','Animated.event']); 
+
 export default class Start extends React.Component {
   constructor(props) {
     super(props);
